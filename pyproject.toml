@@ -8,10 +8,14 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "feedly-client (>=0.26,<0.27)",
     "logzero (>=1.7.0,<2.0.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "typer (>=0.16.0,<0.17.0)"
 ]
+
+[project.scripts]
+feedly-saved-entries-processor = "feedly_saved_entries_processor.main:app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -21,6 +25,10 @@ build-backend = "poetry.core.masonry.api"
 strict = true
 exclude = [".venv", "build", "dist"]
 plugins = "pydantic.mypy"
+
+[[tool.mypy.overrides]]
+module = "feedly.*"
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "logzero"
@@ -40,7 +48,10 @@ quote-style = "double"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["E501"]
+ignore = ["COM812", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004", "S101"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

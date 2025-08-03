@@ -208,3 +208,6 @@ __marimo__/
 
 # Serena
 .serena
+
+# Token file for Feedly API
+access.token
