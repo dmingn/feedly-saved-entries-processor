@@ -1,7 +1,6 @@
 """Feedly client for fetching saved entries."""
 
 from collections.abc import Generator
-from typing import Any
 
 from feedly.api_client.session import FeedlySession
 from logzero import logger
@@ -67,7 +66,7 @@ class FeedlyClient:
     def __init__(self, feedly_session: FeedlySession) -> None:
         self.feedly_session = feedly_session
 
-    def fetch_saved_entries(self) -> Generator[Entry, Any]:
+    def fetch_saved_entries(self) -> Generator[Entry]:
         """Fetch saved entries from Feedly."""
         continuation = None
 
