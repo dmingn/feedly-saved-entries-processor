@@ -24,15 +24,11 @@ def mock_todoist_api(mocker: MockerFixture) -> MagicMock:
 
 
 @pytest.fixture
-def todoist_processor(
-    mocker: MockerFixture, mock_todoist_api: MagicMock
-) -> TodoistEntryProcessor:
+def todoist_processor(mocker: MockerFixture) -> TodoistEntryProcessor:
     """Fixture for TodoistEntryProcessor instance."""
     mocker.patch.dict("os.environ", {"TODOIST_API_TOKEN": "test_token"})
     project_id = "test_project_id"
-    processor = TodoistEntryProcessor(project_id=project_id)
-    processor.todoist_client = mock_todoist_api
-    return processor
+    return TodoistEntryProcessor(project_id=project_id)
 
 
 @pytest.fixture
@@ -72,7 +68,7 @@ def test_post_init(
 ) -> None:
     """Test that the Todoist API client is initialized correctly."""
     assert todoist_processor.todoist_client is not None
-    assert todoist_processor.todoist_client == mock_todoist_api
+    assert todoist_processor.todoist_client == mock_todoist_api.return_value
 
 
 def test_process_entry_success(
@@ -82,13 +78,14 @@ def test_process_entry_success(
 ) -> None:
     """Test successful processing of an entry."""
     sample_entry = entry_builder()
-    mock_todoist_api.add_task.return_value.id = "task_123"
-    mock_todoist_api.add_task.return_value.content = "Test Task"
+    mock_instance = mock_todoist_api.return_value
+    mock_instance.add_task.return_value.id = "task_123"
+    mock_instance.add_task.return_value.content = "Test Task"
 
     todoist_processor.process_entry(sample_entry)
 
     expected_content = "Test Entry - http://example.com/test"
-    mock_todoist_api.add_task.assert_called_once_with(
+    mock_instance.add_task.assert_called_once_with(
         content=expected_content,
         project_id=todoist_processor.project_id,
         priority=None,
@@ -106,13 +103,14 @@ def test_process_entry_no_canonical_url(
     entry = entry_builder(
         canonical_url=None, title="Test Entry No URL", summary_content=None
     )
-    mock_todoist_api.add_task.return_value.id = "task_456"
-    mock_todoist_api.add_task.return_value.content = "Test Task No URL"
+    mock_instance = mock_todoist_api.return_value
+    mock_instance.add_task.return_value.id = "task_456"
+    mock_instance.add_task.return_value.content = "Test Task No URL"
 
     todoist_processor.process_entry(entry)
 
     expected_content = "Test Entry No URL - http://example.com"
-    mock_todoist_api.add_task.assert_called_once_with(
+    mock_instance.add_task.assert_called_once_with(
         content=expected_content,
         project_id=todoist_processor.project_id,
         priority=None,
@@ -128,12 +126,13 @@ def test_process_entry_add_task_failure(
 ) -> None:
     """Test error handling when adding a task fails."""
     sample_entry = entry_builder()
-    mock_todoist_api.add_task.side_effect = Exception("API Error")
+    mock_instance = mock_todoist_api.return_value
+    mock_instance.add_task.side_effect = Exception("API Error")
 
     with pytest.raises(Exception, match="API Error"):
         todoist_processor.process_entry(sample_entry)
 
-    mock_todoist_api.add_task.assert_called_once()
+    mock_instance.add_task.assert_called_once()
 
 
 def test_process_entry_with_optional_params(
@@ -153,13 +152,14 @@ def test_process_entry_with_optional_params(
         canonical_url="http://example.com/params",
         summary_content="Summary for params",
     )
-    mock_todoist_api.add_task.return_value.id = "task_789"
-    mock_todoist_api.add_task.return_value.content = "Test Task with Params"
+    mock_instance = mock_todoist_api.return_value
+    mock_instance.add_task.return_value.id = "task_789"
+    mock_instance.add_task.return_value.content = "Test Task with Params"
 
     todoist_processor.process_entry(entry)
 
     expected_content = "Entry with Params - http://example.com/params"
-    mock_todoist_api.add_task.assert_called_once_with(
+    mock_instance.add_task.assert_called_once_with(
         content=expected_content,
         project_id=todoist_processor.project_id,
         priority=priority,
