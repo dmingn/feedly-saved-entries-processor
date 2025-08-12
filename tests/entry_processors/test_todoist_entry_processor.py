@@ -57,12 +57,6 @@ def entry_builder() -> Callable[..., Entry]:
     return _builder
 
 
-@pytest.fixture
-def sample_entry(entry_builder: Callable[..., Entry]) -> Entry:
-    """Fixture for a sample Entry object using the builder."""
-    return entry_builder()
-
-
 def test_post_init(
     mock_todoist_api: MagicMock, todoist_processor: TodoistEntryProcessor
 ) -> None:
