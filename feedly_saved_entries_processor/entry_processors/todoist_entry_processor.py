@@ -2,11 +2,10 @@
 
 import datetime
 import os
-from typing import Literal
+from typing import Any, Literal
 
 from logzero import logger
-from pydantic import ConfigDict, Field
-from pydantic.dataclasses import dataclass
+from pydantic import PrivateAttr
 from todoist_api_python.api import TodoistAPI
 
 from feedly_saved_entries_processor.entry_processors.base_entry_processor import (
@@ -15,24 +14,24 @@ from feedly_saved_entries_processor.entry_processors.base_entry_processor import
 from feedly_saved_entries_processor.feedly_client import Entry
 
 
-@dataclass(frozen=True, config=ConfigDict(arbitrary_types_allowed=True))
 class TodoistEntryProcessor(BaseEntryProcessor):
     """A processor that saves Feedly entries as tasks in Todoist."""
 
+    processor_name: Literal["todoist"] = "todoist"
     project_id: str
     due_datetime: datetime.datetime | None = None
     priority: Literal[1, 2, 3, 4] | None = None
 
-    todoist_client: TodoistAPI = Field(init=False, repr=False)
+    _todoist_client: TodoistAPI = PrivateAttr()
 
-    def __post_init__(self) -> None:
-        """Initialize the Todoist API client."""
+    def model_post_init(self, __context: Any, /) -> None:  # noqa: ANN401
+        """Initialize the Todoist API client after model validation."""
         api_token = os.environ.get("TODOIST_API_TOKEN")
         if not api_token:
             error_message = "TODOIST_API_TOKEN environment variable must be set"
             raise ValueError(error_message)
 
-        object.__setattr__(self, "todoist_client", TodoistAPI(api_token))
+        self._todoist_client = TodoistAPI(api_token)
 
     def process_entry(self, entry: Entry) -> None:
         """Process a Feedly entry by adding it as a task to Todoist."""
@@ -42,7 +41,7 @@ class TodoistEntryProcessor(BaseEntryProcessor):
 
         task_content = f"{entry.title} - {entry.canonical_url}"
 
-        task = self.todoist_client.add_task(
+        task = self._todoist_client.add_task(
             content=task_content,
             project_id=self.project_id,
             priority=self.priority,

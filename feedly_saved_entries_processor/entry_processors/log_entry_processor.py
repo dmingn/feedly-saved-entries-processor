@@ -1,9 +1,8 @@
-"""Log-only entry processor."""
+"""Log entry processor."""
 
 from typing import Literal
 
 from logzero import logger
-from pydantic.dataclasses import dataclass
 
 from feedly_saved_entries_processor.entry_processors.base_entry_processor import (
     BaseEntryProcessor,
@@ -11,10 +10,10 @@ from feedly_saved_entries_processor.entry_processors.base_entry_processor import
 from feedly_saved_entries_processor.feedly_client import Entry
 
 
-@dataclass(frozen=True)
-class LogOnlyEntryProcessor(BaseEntryProcessor):
+class LogEntryProcessor(BaseEntryProcessor):
     """A processor that only logs the Feedly entry."""
 
+    processor_name: Literal["log"] = "log"
     level: Literal["info", "debug", "warning", "error"] = "info"
 
     def process_entry(self, entry: Entry) -> None:
