@@ -71,8 +71,8 @@ def test_post_init(
 ) -> None:
     """Test that the Todoist API client is initialized correctly."""
     processor = todoist_processor()
-    assert processor.todoist_client is not None
-    assert processor.todoist_client == mock_todoist_api.return_value
+    assert processor._todoist_client is not None  # noqa: SLF001
+    assert processor._todoist_client == mock_todoist_api.return_value  # noqa: SLF001
 
 
 def test_process_entry_success(

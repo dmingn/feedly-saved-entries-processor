@@ -2,11 +2,15 @@
 
 from abc import ABC, abstractmethod
 
+from pydantic import BaseModel, ConfigDict
+
 from feedly_saved_entries_processor.feedly_client import Entry
 
 
-class BaseEntryProcessor(ABC):
+class BaseEntryProcessor(ABC, BaseModel):
     """Base class for processing Feedly entries."""
+
+    model_config = ConfigDict(frozen=True)
 
     @abstractmethod
     def process_entry(self, entry: Entry) -> None:

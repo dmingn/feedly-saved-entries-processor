@@ -1,12 +1,17 @@
 """Configuration loading and validation for Feedly Saved Entries Processor."""
 
 from pathlib import Path
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_str
 from ruamel.yaml.error import YAMLError
 
+from feedly_saved_entries_processor.entry_processors.log_entry_processor import (
+    LogEntryProcessor,
+)
+from feedly_saved_entries_processor.entry_processors.todoist_entry_processor import (
+    TodoistEntryProcessor,
+)
 from feedly_saved_entries_processor.rule_matcher import AllMatcher, StreamIdInMatcher
 
 
@@ -15,8 +20,9 @@ class Rule(BaseModel):
 
     name: str
     match: AllMatcher | StreamIdInMatcher = Field(discriminator="matcher_name")
-    processor: str
-    processor_config: dict[str, Any] = Field(default_factory=dict)
+    processor: LogEntryProcessor | TodoistEntryProcessor = Field(
+        discriminator="processor_name"
+    )
     model_config = ConfigDict(frozen=True)
 
 
