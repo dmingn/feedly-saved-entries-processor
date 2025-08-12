@@ -95,28 +95,19 @@ def test_process_entry_success(
 
 
 def test_process_entry_no_canonical_url(
-    mock_todoist_api: MagicMock,
     todoist_processor: TodoistEntryProcessor,
     entry_builder: Callable[..., Entry],
 ) -> None:
-    """Test processing of an entry without a canonical URL."""
+    """Test processing of an entry without a canonical URL raises an error."""
     entry = entry_builder(
         canonical_url=None, title="Test Entry No URL", summary_content=None
     )
-    mock_instance = mock_todoist_api.return_value
-    mock_instance.add_task.return_value.id = "task_456"
-    mock_instance.add_task.return_value.content = "Test Task No URL"
 
-    todoist_processor.process_entry(entry)
-
-    expected_content = "Test Entry No URL - http://example.com"
-    mock_instance.add_task.assert_called_once_with(
-        content=expected_content,
-        project_id=todoist_processor.project_id,
-        priority=None,
-        due_datetime=None,
-        description=None,
-    )
+    with pytest.raises(
+        ValueError,
+        match="Entry must have a canonical_url to be processed by TodoistEntryProcessor.",
+    ):
+        todoist_processor.process_entry(entry)
 
 
 def test_process_entry_add_task_failure(

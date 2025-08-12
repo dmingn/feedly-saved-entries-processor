@@ -35,7 +35,11 @@ class TodoistEntryProcessor(BaseEntryProcessor):
 
     def process_entry(self, entry: Entry) -> None:
         """Process a Feedly entry by adding it as a task to Todoist."""
-        task_content = f"{entry.title} - {entry.canonical_url or entry.origin.html_url if entry.origin else 'No URL'}"
+        if entry.canonical_url is None:
+            error_message = "Entry must have a canonical_url to be processed by TodoistEntryProcessor."
+            raise ValueError(error_message)
+
+        task_content = f"{entry.title} - {entry.canonical_url}"
 
         task = self.todoist_client.add_task(
             content=task_content,
