@@ -45,8 +45,4 @@ def get_processor(
 
     processor_class = PROCESSOR_MAPPING[processor_name]
 
-    try:
-        return processor_class(**raw_config)
-    except (ImportError, AttributeError) as e:
-        msg = f"Could not load processor {processor_name}: {e}"
-        raise ValueError(msg) from e
+    return processor_class(**raw_config)
