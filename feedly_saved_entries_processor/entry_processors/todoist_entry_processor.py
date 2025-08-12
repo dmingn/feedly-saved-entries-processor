@@ -26,7 +26,11 @@ class TodoistEntryProcessor(BaseEntryProcessor):
 
     def __post_init__(self) -> None:
         """Initialize the Todoist API client."""
-        api_token = os.environ["TODOIST_API_TOKEN"]
+        api_token = os.environ.get("TODOIST_API_TOKEN")
+        if not api_token:
+            error_message = "TODOIST_API_TOKEN environment variable must be set"
+            raise ValueError(error_message)
+
         self.todoist_client = TodoistAPI(api_token)
 
     def process_entry(self, entry: Entry) -> None:
