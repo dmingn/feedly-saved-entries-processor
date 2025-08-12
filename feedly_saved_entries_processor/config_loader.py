@@ -1,0 +1,69 @@
+"""Configuration loading and validation for Feedly Saved Entries Processor."""
+
+from pathlib import Path
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic_yaml import parse_yaml_raw_as, to_yaml_str
+from ruamel.yaml.error import YAMLError
+
+
+class MatchConfig(BaseModel):
+    """Configuration for matching Feedly entries."""
+
+    stream_id_in: tuple[str, ...] | None = None
+    model_config = ConfigDict(frozen=True)
+
+
+class Rule(BaseModel):
+    """Defines a single processing rule for Feedly entries."""
+
+    name: str
+    match: MatchConfig
+    processor: str
+    processor_config: dict[str, Any] = Field(default_factory=dict)
+    model_config = ConfigDict(frozen=True)
+
+
+class Config(BaseModel):
+    """Overall configuration for the Feedly Saved Entries Processor."""
+
+    rules: tuple[Rule, ...]
+    model_config = ConfigDict(frozen=True)
+
+
+def load_config(file_path: Path) -> Config:
+    """Load and validate the configuration from a YAML file.
+
+    Args:
+        file_path: The path to the YAML configuration file.
+
+    Returns
+    -------
+        A Config object representing the loaded configuration.
+
+    Raises
+    ------
+        FileNotFoundError: If the configuration file does not exist.
+        ValueError: If there is an error parsing or validating the configuration file.
+    """
+    if not file_path.exists():
+        msg = f"Configuration file not found: {file_path}"
+        raise FileNotFoundError(msg)
+
+    try:
+        yaml_content = file_path.read_text(encoding="utf-8")
+        return parse_yaml_raw_as(Config, yaml_content)
+    except (YAMLError, ValidationError) as e:
+        msg = f"Error parsing configuration file {file_path}: {e}"
+        raise ValueError(msg) from e
+
+
+def save_config(config: Config, file_path: Path) -> None:
+    """Save the configuration to a YAML file.
+
+    Args:
+        config: The Config object to save.
+        file_path: The path to the YAML file where the configuration will be saved.
+    """
+    file_path.write_text(to_yaml_str(config), encoding="utf-8")
