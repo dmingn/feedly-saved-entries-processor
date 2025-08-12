@@ -6,11 +6,11 @@ import pytest
 
 from feedly_saved_entries_processor.config_loader import (
     Config,
-    MatchConfig,
     Rule,
     load_config,
     save_config,
 )
+from feedly_saved_entries_processor.rule_matcher import StreamIdInMatcher
 
 
 @pytest.fixture
@@ -20,7 +20,8 @@ def temp_config_file(tmp_path: Path) -> Path:
 rules:
   - name: "Test Rule 1"
     match:
-      stream_id_in:
+      matcher_name: "stream_id_in"
+      stream_ids:
         - "feed/test.com/1"
         - "feed/test.com/2"
     processor: "todoist"
@@ -30,7 +31,8 @@ rules:
 
   - name: "Test Rule 2"
     match:
-      stream_id_in:
+      matcher_name: "stream_id_in"
+      stream_ids:
         - "feed/test.com/3"
     processor: "log_only"
     processor_config:
@@ -99,7 +101,8 @@ def test_load_config_success(temp_config_file: Path) -> None:
 
     rule1 = config.rules[0]
     assert rule1.name == "Test Rule 1"
-    assert rule1.match.stream_id_in == ("feed/test.com/1", "feed/test.com/2")
+    assert isinstance(rule1.match, StreamIdInMatcher)
+    assert rule1.match.stream_ids == ("feed/test.com/1", "feed/test.com/2")
     assert rule1.processor == "todoist"
     assert rule1.processor_config is not None
     assert rule1.processor_config["project"] == "Inbox"
@@ -107,7 +110,8 @@ def test_load_config_success(temp_config_file: Path) -> None:
 
     rule2 = config.rules[1]
     assert rule2.name == "Test Rule 2"
-    assert rule2.match.stream_id_in == ("feed/test.com/3",)
+    assert isinstance(rule2.match, StreamIdInMatcher)
+    assert rule2.match.stream_ids == ("feed/test.com/3",)
     assert rule2.processor == "log_only"
     assert rule2.processor_config is not None
     assert rule2.processor_config["level"] == "info"
@@ -138,7 +142,9 @@ def test_save_config_and_load_back(tmp_path: Path) -> None:
         rules=[
             Rule(
                 name="Saved Rule",
-                match=MatchConfig(stream_id_in=["feed/saved.com/1"]),
+                match=StreamIdInMatcher(
+                    matcher_name="stream_id_in", stream_ids=("feed/saved.com/1",)
+                ),
                 processor="test_processor",
                 processor_config={"key": "value"},
             )

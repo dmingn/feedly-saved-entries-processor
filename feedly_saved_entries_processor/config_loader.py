@@ -7,19 +7,14 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_str
 from ruamel.yaml.error import YAMLError
 
-
-class MatchConfig(BaseModel):
-    """Configuration for matching Feedly entries."""
-
-    stream_id_in: tuple[str, ...] | None = None
-    model_config = ConfigDict(frozen=True)
+from feedly_saved_entries_processor.rule_matcher import AllMatcher, StreamIdInMatcher
 
 
 class Rule(BaseModel):
     """Defines a single processing rule for Feedly entries."""
 
     name: str
-    match: MatchConfig
+    match: AllMatcher | StreamIdInMatcher = Field(discriminator="matcher_name")
     processor: str
     processor_config: dict[str, Any] = Field(default_factory=dict)
     model_config = ConfigDict(frozen=True)
