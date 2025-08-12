@@ -37,16 +37,12 @@ class TodoistEntryProcessor(BaseEntryProcessor):
         """Process a Feedly entry by adding it as a task to Todoist."""
         task_content = f"{entry.title} - {entry.canonical_url or entry.origin.html_url if entry.origin else 'No URL'}"
 
-        try:
-            task = self.todoist_client.add_task(
-                content=task_content,
-                project_id=self.project_id,
-                priority=self.priority,
-                due_datetime=self.due_datetime,
-                description=entry.summary.content if entry.summary else None,
-            )
-        except Exception as e:
-            logger.error(f"Failed to add task to Todoist: {e}")
-            raise
+        task = self.todoist_client.add_task(
+            content=task_content,
+            project_id=self.project_id,
+            priority=self.priority,
+            due_datetime=self.due_datetime,
+            description=entry.summary.content if entry.summary else None,
+        )
 
         logger.info(f"Added task to Todoist: {task.content} (ID: {task.id})")
