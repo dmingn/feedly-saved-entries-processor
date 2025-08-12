@@ -2,10 +2,11 @@
 
 import datetime
 import os
-from dataclasses import dataclass, field
 from typing import Literal
 
 from logzero import logger
+from pydantic import ConfigDict, Field
+from pydantic.dataclasses import dataclass
 from todoist_api_python.api import TodoistAPI
 
 from feedly_saved_entries_processor.entry_processors.base_entry_processor import (
@@ -14,7 +15,7 @@ from feedly_saved_entries_processor.entry_processors.base_entry_processor import
 from feedly_saved_entries_processor.feedly_client import Entry
 
 
-@dataclass()
+@dataclass(frozen=True, config=ConfigDict(arbitrary_types_allowed=True))
 class TodoistEntryProcessor(BaseEntryProcessor):
     """A processor that saves Feedly entries as tasks in Todoist."""
 
@@ -22,7 +23,7 @@ class TodoistEntryProcessor(BaseEntryProcessor):
     due_datetime: datetime.datetime | None = None
     priority: Literal[1, 2, 3, 4] | None = None
 
-    todoist_client: TodoistAPI = field(init=False, repr=False)
+    todoist_client: TodoistAPI = Field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Initialize the Todoist API client."""
@@ -31,7 +32,7 @@ class TodoistEntryProcessor(BaseEntryProcessor):
             error_message = "TODOIST_API_TOKEN environment variable must be set"
             raise ValueError(error_message)
 
-        self.todoist_client = TodoistAPI(api_token)
+        object.__setattr__(self, "todoist_client", TodoistAPI(api_token))
 
     def process_entry(self, entry: Entry) -> None:
         """Process a Feedly entry by adding it as a task to Todoist."""
