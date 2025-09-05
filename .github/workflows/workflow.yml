@@ -58,7 +58,7 @@ jobs:
   release:
     needs: [check, validate_version_format]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -96,7 +96,7 @@ jobs:
 
   propose-version-update:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -181,5 +181,5 @@ jobs:
               --title "build: Propose version update to ${{ steps.update_version.outputs.new_version }}" \
               --body "This PR proposes an update to the project version. Merging this PR will trigger a new release." \
               --head "$BRANCH_NAME" \
-              --base "master"
+              --base "main"
           fi
