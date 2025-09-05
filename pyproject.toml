@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-feedly-saved-entries-processor = "feedly_saved_entries_processor.main:app"
+feedly-saved-entries-processor = "feedly_saved_entries_processor.__main__:app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
