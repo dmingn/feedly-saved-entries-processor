@@ -122,26 +122,25 @@ def test_process_entry_handles_exception_in_processor(
 
 def test_process_entries_calls_process_entry_for_each_entry_and_rule(
     mocker: MockerFixture,
-    mock_entry: Entry,
-    mock_rule: Rule,
 ) -> None:
     """Test that process_entries calls process_entry for each entry and rule."""
     mock_process_entry = mocker.patch(
         "feedly_saved_entries_processor.__main__.process_entry"
     )
-    entries = [mock_entry, mock_entry]
-    rules = [mock_rule, mock_rule]
+    entry1, entry2 = MagicMock(spec=Entry), MagicMock(spec=Entry)
+    rule1, rule2 = MagicMock(spec=Rule), MagicMock(spec=Rule)
+    entries = [entry1, entry2]
+    rules = [rule1, rule2]
 
     process_entries(entries, rules)
 
-    assert mock_process_entry.call_count == 4
     expected_calls = [
-        mocker.call(mock_entry, mock_rule),
-        mocker.call(mock_entry, mock_rule),
-        mocker.call(mock_entry, mock_rule),
-        mocker.call(mock_entry, mock_rule),
+        mocker.call(entry1, rule1),
+        mocker.call(entry1, rule2),
+        mocker.call(entry2, rule1),
+        mocker.call(entry2, rule2),
     ]
-    mock_process_entry.assert_has_calls(expected_calls)
+    assert mock_process_entry.call_args_list == expected_calls
 
 
 @pytest.fixture
