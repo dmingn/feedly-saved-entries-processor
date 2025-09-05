@@ -1,5 +1,6 @@
 """CLI application."""
 
+import json
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Annotated
@@ -8,7 +9,7 @@ import typer
 from feedly.api_client.session import FeedlySession, FileAuthStore
 from logzero import logger
 
-from feedly_saved_entries_processor.config_loader import Rule, load_config
+from feedly_saved_entries_processor.config_loader import Config, Rule, load_config
 from feedly_saved_entries_processor.feedly_client import Entry, FeedlyClient
 
 app = typer.Typer()
@@ -41,7 +42,7 @@ def process_entries(entries: Iterable[Entry], rules: Iterable[Rule]) -> None:
 
 
 @app.command()
-def main(
+def process(
     config_file: Annotated[
         Path,
         typer.Option(exists=True, file_okay=True, dir_okay=False),
@@ -64,6 +65,12 @@ def main(
 
     entries = client.fetch_saved_entries()
     process_entries(entries=entries, rules=config.rules)
+
+
+@app.command()
+def show_config_schema() -> None:
+    """Show the JSON schema for the configuration file."""
+    print(json.dumps(Config.model_json_schema(), indent=2))  # noqa: T201
 
 
 if __name__ == "__main__":
