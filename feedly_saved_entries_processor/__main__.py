@@ -70,7 +70,7 @@ def process(
 @app.command()
 def show_config_schema() -> None:
     """Show the JSON schema for the configuration file."""
-    print(json.dumps(Config.model_json_schema(), indent=2))  # noqa: T201
+    typer.echo(json.dumps(Config.model_json_schema(), indent=2))
 
 
 if __name__ == "__main__":
