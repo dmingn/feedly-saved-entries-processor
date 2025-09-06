@@ -1,0 +1,7 @@
+rules:
+  - name: "Invalid YAML: missing colon"
+    match # Missing colon
+      matcher_name: "all"
+    processor:
+      processor_name: "log"
+      level: "debug"
