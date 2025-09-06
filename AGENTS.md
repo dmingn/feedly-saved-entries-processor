@@ -16,7 +16,7 @@ This project assumes a Python development environment.
 
 ## Testing Instructions
 
-When testing, the agent SHOULD execute `make format-and-check` to ensure code quality and adherence to standards. This command runs formatting, linting, type checking, and unit tests.
+To ensure code quality and adherence to standards, the agent SHOULD execute `make format-and-check` before submitting changes. This command runs formatting, linting, type checking, and unit tests.
 
 ## Language Policy
 
