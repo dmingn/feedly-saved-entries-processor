@@ -1,16 +1,5 @@
 rules:
-  - name: "Test Rule 1 - Todoist"
-    match:
-      matcher_name: "stream_id_in"
-      stream_ids:
-        - "feed/test.com/1"
-        - "feed/test.com/2"
-    processor:
-      processor_name: "todoist"
-      project_id: "Inbox"
-      priority: 4
-
-  - name: "Test Rule 2 - Log"
+  - name: "Log Rule for Stream ID"
     match:
       matcher_name: "stream_id_in"
       stream_ids:
@@ -19,7 +8,7 @@ rules:
       processor_name: "log"
       level: "info"
 
-  - name: "Test Rule 3 - All Matcher Log"
+  - name: "Log Rule for All Matcher"
     match:
       matcher_name: "all"
     processor:
