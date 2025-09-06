@@ -45,15 +45,9 @@ def invalid_yaml_file(test_configs_path: Path) -> Path:
 
 
 @pytest.fixture
-def invalid_structure_file(test_configs_path: Path) -> Path:
-    """Provide a path to a YAML file with invalid structure."""
-    return test_configs_path / "invalid_structure.yaml"
-
-
-@pytest.fixture
-def invalid_processor_config_file(test_configs_path: Path) -> Path:
-    """Provide a path to a YAML file with invalid processor configuration."""
-    return test_configs_path / "invalid_processor_config.yaml"
+def invalid_schema_file(test_configs_path: Path) -> Path:
+    """Provide a path to a YAML file with invalid schema."""
+    return test_configs_path / "invalid_schema.yaml"
 
 
 @pytest.mark.usefixtures("mock_todoist_api_token_env")
@@ -103,19 +97,10 @@ def test_load_config_invalid_yaml(invalid_yaml_file: Path) -> None:
         load_config(invalid_yaml_file)
 
 
-def test_load_config_invalid_structure(invalid_structure_file: Path) -> None:
-    """Test that ValueError is raised for a YAML file with invalid structure."""
+def test_load_config_invalid_schema(invalid_schema_file: Path) -> None:
+    """Test that ValueError is raised for a YAML file with invalid schema."""
     with pytest.raises(ValueError, match="Error parsing configuration file"):
-        load_config(invalid_structure_file)
-
-
-@pytest.mark.usefixtures("mock_todoist_api_token_env")
-def test_load_config_invalid_processor_config(
-    invalid_processor_config_file: Path,
-) -> None:
-    """Test that ValidationError is raised for invalid processor configuration in YAML."""
-    with pytest.raises(ValueError, match="Error parsing configuration file"):
-        load_config(invalid_processor_config_file)
+        load_config(invalid_schema_file)
 
 
 @pytest.mark.usefixtures("mock_todoist_api_token_env")

@@ -1,0 +1,6 @@
+rules:
+  - name: "Test Rule 1"
+    # Missing 'match' key
+    processor:
+      processor_name: "log"
+      level: "info"

@@ -1,6 +1,0 @@
-rules:
-  - name: "Test Rule 1"
-    # Missing 'match' key
-    processor: "todoist"
-    processor_config:
-      project: "Inbox"
