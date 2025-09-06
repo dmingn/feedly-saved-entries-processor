@@ -1,6 +1,6 @@
 """Log entry processor."""
 
-from typing import Literal
+from typing import Literal, assert_never
 
 from logzero import logger
 
@@ -19,13 +19,14 @@ class LogEntryProcessor(BaseEntryProcessor):
     def process_entry(self, entry: Entry) -> None:
         """Process a Feedly entry by logging its details."""
         log_message = f"Processing entry: {entry.title} (URL: {entry.canonical_url})"
-        if self.level == "info":
-            logger.info(log_message)
-        elif self.level == "debug":
-            logger.debug(log_message)
-        elif self.level == "warning":
-            logger.warning(log_message)
-        elif self.level == "error":
-            logger.error(log_message)
-        else:
-            logger.info(log_message)  # Default to info
+        match self.level:
+            case "info":
+                logger.info(log_message)
+            case "debug":
+                logger.debug(log_message)
+            case "warning":
+                logger.warning(log_message)
+            case "error":
+                logger.error(log_message)
+            case _ as unexpected_level:
+                assert_never(unexpected_level)
