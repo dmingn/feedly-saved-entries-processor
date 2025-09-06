@@ -1,0 +1,15 @@
+rules:
+  - name: "Invalid Todoist Processor"
+    match:
+      matcher_name: "all"
+    processor:
+      processor_name: "todoist"
+      # Missing required 'project_id'
+      priority: 4
+
+  - name: "Invalid Log Processor"
+    match:
+      matcher_name: "all"
+    processor:
+      processor_name: "log"
+      level: "invalid_level" # Invalid level

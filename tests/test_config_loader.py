@@ -27,120 +27,39 @@ def mock_todoist_api_token_env(mocker: MockerFixture) -> None:
 
 
 @pytest.fixture
-def temp_config_file(tmp_path: Path) -> Path:
-    """Provide a path to a temporary valid configuration file."""
-    content = """
-rules:
-  - name: "Test Rule 1 - Todoist"
-    match:
-      matcher_name: "stream_id_in"
-      stream_ids:
-        - "feed/test.com/1"
-        - "feed/test.com/2"
-    processor:
-      processor_name: "todoist"
-      project_id: "Inbox"
-      priority: 4
-
-  - name: "Test Rule 2 - Log"
-    match:
-      matcher_name: "stream_id_in"
-      stream_ids:
-        - "feed/test.com/3"
-    processor:
-      processor_name: "log"
-      level: "info"
-
-  - name: "Test Rule 3 - All Matcher Log"
-    match:
-      matcher_name: "all"
-    processor:
-      processor_name: "log"
-      level: "debug"
-"""
-    file_path = tmp_path / "config.yaml"
-    file_path.write_text(content)
-    return file_path
+def test_configs_path() -> Path:
+    """Provide the base path to the test configuration files directory."""
+    return Path(__file__).parent / "test_configs"
 
 
 @pytest.fixture
-def invalid_yaml_file(tmp_path: Path) -> Path:
-    """Provide a path to a temporary invalid YAML file."""
-    content = """
-rules:
-  - name: "Test Rule 1"
-    match:
-      stream_id_in:
-        - "feed/test.com/1"
-        - "feed/test.com/2"
-    processor: "todoist"
-    processor_config:
-      project: "Inbox"
-      priority: 4
-
-  - name: "Test Rule 2"
-    match:
-      stream_id_in:
-        - "feed/test.com/3"
-    processor: "log_only"
-    processor_config:
-      level: "info"
-
-  - name: "Invalid YAML: missing colon"
-    match
-      stream_id_in:
-        - "feed/test.com/4"
-"""
-    file_path = tmp_path / "invalid_config.yaml"
-    file_path.write_text(content)
-    return file_path
+def valid_config_file(test_configs_path: Path) -> Path:
+    """Provide a path to a valid configuration file."""
+    return test_configs_path / "valid_config.yaml"
 
 
 @pytest.fixture
-def invalid_structure_file(tmp_path: Path) -> Path:
-    """Provide a path to a temporary YAML file with invalid structure."""
-    content = """
-rules:
-  - name: "Test Rule 1"
-    # Missing 'match' key
-    processor: "todoist"
-    processor_config:
-      project: "Inbox"
-"""
-    file_path = tmp_path / "invalid_structure.yaml"
-    file_path.write_text(content)
-    return file_path
+def invalid_yaml_file(test_configs_path: Path) -> Path:
+    """Provide a path to an invalid YAML file."""
+    return test_configs_path / "invalid_yaml.yaml"
 
 
 @pytest.fixture
-def invalid_processor_config_file(tmp_path: Path) -> Path:
-    """Provide a path to a temporary YAML file with invalid processor configuration."""
-    content = """
-rules:
-  - name: "Invalid Todoist Processor"
-    match:
-      matcher_name: "all"
-    processor:
-      processor_name: "todoist"
-      # Missing required 'project_id'
-      priority: 4
+def invalid_structure_file(test_configs_path: Path) -> Path:
+    """Provide a path to a YAML file with invalid structure."""
+    return test_configs_path / "invalid_structure.yaml"
 
-  - name: "Invalid Log Processor"
-    match:
-      matcher_name: "all"
-    processor:
-      processor_name: "log"
-      level: "invalid_level" # Invalid level
-"""
-    file_path = tmp_path / "invalid_processor_config.yaml"
-    file_path.write_text(content)
-    return file_path
+
+@pytest.fixture
+def invalid_processor_config_file(test_configs_path: Path) -> Path:
+    """Provide a path to a YAML file with invalid processor configuration."""
+    return test_configs_path / "invalid_processor_config.yaml"
 
 
 @pytest.mark.usefixtures("mock_todoist_api_token_env")
-def test_load_config_success(temp_config_file: Path) -> None:
+def test_load_config_success(valid_config_file: Path) -> None:
     """Test that a valid configuration file can be loaded successfully."""
-    config = load_config(temp_config_file)
+    config = load_config(valid_config_file)
 
     assert isinstance(config, Config)
     assert len(config.rules) == 3
