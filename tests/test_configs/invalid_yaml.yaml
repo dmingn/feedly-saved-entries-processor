@@ -1,23 +1,7 @@
 rules:
-  - name: "Test Rule 1"
-    match:
-      stream_id_in:
-        - "feed/test.com/1"
-        - "feed/test.com/2"
-    processor: "todoist"
-    processor_config:
-      project: "Inbox"
-      priority: 4
-
-  - name: "Test Rule 2"
-    match:
-      stream_id_in:
-        - "feed/test.com/3"
-    processor: "log_only"
-    processor_config:
-      level: "info"
-
   - name: "Invalid YAML: missing colon"
-    match
-      stream_id_in:
-        - "feed/test.com/4"
+    match # Missing colon
+      matcher_name: "all"
+    processor:
+      processor_name: "log"
+      level: "debug"
